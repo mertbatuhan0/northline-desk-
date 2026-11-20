@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "author": "Northline Desk",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "wokwi-esp32-devkit-v1",
+      "id": "esp",
+      "top": 0,
+      "left": 0,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn1",
+      "top": -220,
+      "left": 280,
+      "attrs": { "color": "red", "label": "P1 fire" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn2",
+      "top": -90,
+      "left": 280,
+      "attrs": { "color": "yellow", "label": "P2 medical" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn3",
+      "top": 40,
+      "left": 280,
+      "attrs": { "color": "blue", "label": "weather" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn4",
+      "top": 170,
+      "left": 280,
+      "attrs": { "color": "green", "label": "page" }
+    }
+  ],
+  "connections": [
+    ["esp:TX0", "$serialMonitor:RX", "", []],
+    ["esp:RX0", "$serialMonitor:TX", "", []],
+    ["esp:D13", "btn1:1.l", "red", ["h30", "v-180"]],
+    ["esp:D14", "btn2:1.l", "gold", ["h40", "v-50"]],
+    ["esp:D27", "btn3:1.l", "blue", ["h50", "v60"]],
+    ["esp:D26", "btn4:1.l", "green", ["h60", "v160"]],
+    ["esp:GND.1", "btn1:2.l", "black", ["h-10", "v-200"]],
+    ["esp:GND.1", "btn2:2.l", "black", ["h-10", "v-70"]],
+    ["esp:GND.1", "btn3:2.l", "black", ["h-10", "v40"]],
+    ["esp:GND.1", "btn4:2.l", "black", ["h-10", "v150"]]
+  ],
+  "dependencies": {}
+}
