@@ -1,80 +1,99 @@
-# Northline Desk
+<p align="center">
+  <img src="src/app/icon.svg" alt="Northline mark" width="72" height="72" />
+</p>
 
-Northline Desk is a local event-driven dispatch board for a small city. Calls, weather, street closures, and the station clock are events. A priority queue holds them. Handlers assign units, escalate calls that wait too long, move crews, and write the radio log.
+<h1 align="center">Northline Desk</h1>
 
-The queue is not a network service. In the browser it lives in the tab. `npm run demo` runs the same queue inside one Node process. Refreshing the page continues the watch from `localStorage`.
+<p align="center">
+  A local event-driven dispatch board for a city that fits on one screen.
+</p>
 
-The full event list is in [events.md](events.md). The producers, queue, and handlers are drawn in [architecture.md](architecture.md).
+<p align="center">
+  <a href="events.md">Events</a> ·
+  <a href="architecture.md">Architecture</a> ·
+  <a href="#start">Start</a>
+</p>
 
-## Requirements
+<p align="center">
+  <img alt="Node 20+" src="https://img.shields.io/badge/node-20%2B-1c241c?style=flat-square" />
+  <img alt="Queue is local" src="https://img.shields.io/badge/queue-local-f0c14a?style=flat-square&labelColor=1c241c" />
+  <img alt="17 events" src="https://img.shields.io/badge/events-17-9ecbff?style=flat-square&labelColor=1c241c" />
+</p>
 
-- Node.js 20 or newer
-- npm
+---
 
-## Start the desk
+Calls, weather, blocked streets, and the station clock are events. A priority queue holds them. Six handlers assign units, raise calls that wait, move crews, and write the radio log.
+
+The queue never leaves the machine. In the browser it lives in the tab. `npm run demo` runs the same queue in one Node process.
+
+```text
+operator  ─┐
+city      ─┼─▶  event queue  ─▶  audit → projection → dispatch
+clock     ─┘         ▲              escalation → movement → radio
+                      └──────── follow-up events ────────┘
+```
+
+| | |
+| --- | --- |
+| [events.md](events.md) | All 17 events, payloads, producers, and handlers |
+| [architecture.md](architecture.md) | Producers, the two heaps, and the handler order |
+
+## Start
+
+Node.js 20 or newer, and npm.
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open [http://localhost:3847](http://localhost:3847).
+Open [http://localhost:3847](http://localhost:3847). Leave the terminal running. Stop it with Ctrl+C.
 
-Leave that terminal running. Stop it with Ctrl+C.
-
-To run the production build locally:
+Production build, same address:
 
 ```bash
 npm run build
 npm start
 ```
 
-That also serves [http://localhost:3847](http://localhost:3847).
+The board opens quiet. File a report or arm the city to see the queue move.
 
-## Use the board
+## Use it
 
-1. Press **File a report** (or the `N` key) and describe a call. That produces `incident.reported`. Dispatch assigns the nearest suitable unit, or holds the call if none is free.
-2. Press **Arm the city** (or `S`) to let the simulator produce incidents, weather, and blocked streets. The station clock produces one tick per simulated second.
-3. Watch the **event tape**. Each line is one event that has left the queue. The right-hand column shows the producers, the queue, and the handlers with live counts.
-4. Press a unit's **Hold** to take it out of service. A waiting call is assigned when a suitable unit returns.
-5. Open an incident to change its priority or close it early. Crews also close their own calls after they work the scene.
-6. **1x / 2x / 4x** changes simulated speed. **Pause** (or Space, when you are not typing) freezes the clock. Timed events stay queued. A report you file while paused is still delivered at once.
-7. **Reset watch** clears the board and the saved snapshot.
+| Control | What it does |
+| --- | --- |
+| **File a report** or `N` | Enqueues `incident.reported`. Dispatch assigns the nearest free unit, or holds the call. |
+| **Arm the city** or `S` | The simulator emits incidents, weather, and blocked streets. |
+| **Event tape** | One line per event that has left the queue. |
+| **Right column** | Live counts for producers, the ready and timed queues, and the six handlers. |
+| **Hold / Return** | Takes a unit out of service. A waiting call is filled when a suitable unit comes back. |
+| **Incident card** | Change priority, or close the call early. Crews also close their own calls. |
+| **1x / 2x / 4x** | Simulated speed. |
+| **Pause** or Space | Freezes the clock. Timed events stay queued. A new report still goes through. |
+| **Reset watch** | Clears the board and the saved snapshot. |
 
-The opening board is quiet on purpose. Arm the city or file a report to see the queue move.
+## Trace and tests
 
-## Headless trace
-
-This runs the city for 90 simulated seconds and prints every delivered event except clock ticks.
+Ninety simulated seconds, printed in the terminal. Clock ticks are counted, not printed.
 
 ```bash
 npm run demo
 ```
 
-The process exits with code 0 when the trace includes a reported call, a dispatch, travel, a close, a clear, radio, and clock ticks.
-
-## Tests
-
 ```bash
 npm test
 ```
 
-The tests cover queue order, delayed delivery, assignment, blocked streets, escalation timers, weather slowdown, handler failures, a deterministic simulator, and snapshot restore.
+Tests cover queue order, delayed delivery, assignment, blocked streets, escalation, weather, a handler that throws, a seeded city, and snapshot restore.
 
-## Project layout
+## Layout
 
-| Path | What it is |
+| Path | Role |
 | --- | --- |
-| `src/lib/edp/producers.ts` | Operator, city simulator, and station clock |
+| `src/lib/edp/producers.ts` | Operator, city simulator, station clock |
 | `src/lib/edp/queue.ts` | Ready heap and delayed heap |
 | `src/lib/edp/handlers.ts` | Audit, projection, dispatch, escalation, movement, radio |
-| `src/lib/edp/engine.ts` | Clock loop that drains the queue |
+| `src/lib/edp/engine.ts` | The clock loop that drains the queue |
 | `src/components/desk-app.tsx` | The board |
-| `events.md` | Every event, its payload, who produces it, who handles it |
-| `architecture.md` | Producers, queue, and handlers |
 
-## Notes for marking
-
-- All of the application code is in this repository.
-- No account, API key, or network broker is required.
-- The same engine runs in the browser and in `npm run demo`.
+No account, API key, or network broker. All of the application code is in this repository. The browser and `npm run demo` run the same engine.
